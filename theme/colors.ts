@@ -1,6 +1,4 @@
 export const colors = {
-    primary: "#3498db",
-
     maternal: '#7a1f2b',
     paternal: '#1b2a4a',
 
