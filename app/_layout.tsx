@@ -1,1 +1,0 @@
-import {observe} from expo-observe;
