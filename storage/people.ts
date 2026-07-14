@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Person, NewPersonInput } from '../types';
-import Crypto from 'expo-crypto';
+import * as Crypto from 'expo-crypto';
 
 const STORAGE_KEY = 'salasila_people';
 
