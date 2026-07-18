@@ -3,6 +3,7 @@ import { migrate } from 'drizzle-orm/expo-sqlite/migrator';
 import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
 
 import migrations from '../../drizzle/migrations';
+import { ensureCrossOriginIsolated } from '../lib/crossOriginIsolation';
 import * as schema from './schema';
 
 // Opened asynchronously: the sync API is not supported by expo-sqlite's web
@@ -16,6 +17,7 @@ let initPromise: Promise<void> | undefined;
 
 export function initDb(): Promise<void> {
   initPromise ??= (async () => {
+    await ensureCrossOriginIsolated();
     expoDb = await openDatabaseAsync('salasila.db');
     // FK enforcement is off by default; needed for media cascade deletes.
     await expoDb.execAsync('PRAGMA foreign_keys = ON;');
