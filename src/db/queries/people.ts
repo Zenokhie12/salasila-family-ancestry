@@ -3,6 +3,7 @@ import * as Crypto from 'expo-crypto';
 
 import type { LineageSide, Person } from '../../models/types';
 import { db } from '../client';
+import { notifyDbChanged } from '../events';
 import { rowToPerson } from '../mappers';
 import { people } from '../schema';
 
@@ -31,6 +32,7 @@ export async function createPerson(input: NewPerson): Promise<Person> {
     updatedAt: now,
   };
   await db.insert(people).values(person);
+  notifyDbChanged();
   return person;
 }
 
@@ -39,10 +41,12 @@ export async function updatePerson(id: string, changes: PersonUpdate): Promise<v
     .update(people)
     .set({ ...changes, updatedAt: new Date().toISOString() })
     .where(eq(people.id, id));
+  notifyDbChanged();
 }
 
 export async function deletePerson(id: string): Promise<void> {
   await db.delete(people).where(eq(people.id, id));
+  notifyDbChanged();
 }
 
 export async function getPerson(id: string): Promise<Person | undefined> {

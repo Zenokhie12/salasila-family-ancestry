@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Legend } from '../src/components/tree/Legend';
 import { TreeCanvas } from '../src/components/tree/TreeCanvas';
@@ -10,9 +10,17 @@ import { computeTreeLayout } from '../src/lib/treeLayout';
 
 export default function TreeScreen() {
   const router = useRouter();
-  const people = usePeople();
-  const units = useFamilyUnits();
+  const { people, loaded: peopleLoaded } = usePeople();
+  const { units, loaded: unitsLoaded } = useFamilyUnits();
   const layout = useMemo(() => computeTreeLayout(people, units), [people, units]);
+
+  if (!peopleLoaded || !unitsLoaded) {
+    return (
+      <View style={styles.emptyContainer}>
+        <ActivityIndicator size="large" color={UI.accent} />
+      </View>
+    );
+  }
 
   if (people.length === 0) {
     return (

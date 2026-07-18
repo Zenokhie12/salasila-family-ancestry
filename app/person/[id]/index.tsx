@@ -1,6 +1,6 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { MediaGallery } from '../../../src/components/profile/MediaGallery';
 import {
@@ -19,10 +19,10 @@ import type { Person } from '../../../src/models/types';
 export default function ProfileScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const person = usePerson(id);
-  const people = usePeople();
-  const units = useFamilyUnits();
-  const media = useMediaForPerson(id);
+  const { person, loaded } = usePerson(id);
+  const { people } = usePeople();
+  const { units } = useFamilyUnits();
+  const { media } = useMediaForPerson(id);
   const setFocusPersonId = useAppStore((s) => s.setFocusPersonId);
 
   const relations = useMemo(
@@ -30,6 +30,13 @@ export default function ProfileScreen() {
     [id, people, units],
   );
 
+  if (!loaded) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={UI.accent} />
+      </View>
+    );
+  }
   if (!person) {
     return (
       <View style={styles.center}>

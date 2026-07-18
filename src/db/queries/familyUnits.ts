@@ -3,12 +3,14 @@ import * as Crypto from 'expo-crypto';
 
 import type { FamilyUnit } from '../../models/types';
 import { db } from '../client';
+import { notifyDbChanged } from '../events';
 import { rowToFamilyUnit } from '../mappers';
 import { familyUnits } from '../schema';
 
 export async function createFamilyUnit(input: Omit<FamilyUnit, 'id'>): Promise<FamilyUnit> {
   const unit: FamilyUnit = { ...input, id: Crypto.randomUUID() };
   await db.insert(familyUnits).values(unit);
+  notifyDbChanged();
   return unit;
 }
 
@@ -17,10 +19,12 @@ export async function updateFamilyUnit(
   changes: Partial<Omit<FamilyUnit, 'id'>>,
 ): Promise<void> {
   await db.update(familyUnits).set(changes).where(eq(familyUnits.id, id));
+  notifyDbChanged();
 }
 
 export async function deleteFamilyUnit(id: string): Promise<void> {
   await db.delete(familyUnits).where(eq(familyUnits.id, id));
+  notifyDbChanged();
 }
 
 export async function getAllFamilyUnits(): Promise<FamilyUnit[]> {

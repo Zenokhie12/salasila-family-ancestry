@@ -30,9 +30,9 @@ function showError(message: string) {
 export default function AddPersonScreen() {
   const router = useRouter();
   const { relativeTo, asRoot } = useLocalSearchParams<{ relativeTo?: string; asRoot?: string }>();
-  const people = usePeople();
+  const { people, loaded } = usePeople();
 
-  const isFirstPerson = asRoot === '1' || people.length === 0;
+  const isFirstPerson = asRoot === '1' || (loaded && people.length === 0);
   const [anchorId, setAnchorId] = useState<string | undefined>(relativeTo);
   const [relation, setRelation] = useState<RelationType>('child');
   const [role, setRole] = useState<ParentRole>('parent');

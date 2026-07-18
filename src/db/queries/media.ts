@@ -3,6 +3,7 @@ import * as Crypto from 'expo-crypto';
 
 import type { MediaAttachment } from '../../models/types';
 import { db } from '../client';
+import { notifyDbChanged } from '../events';
 import { rowToMediaAttachment } from '../mappers';
 import { mediaAttachments } from '../schema';
 
@@ -15,11 +16,13 @@ export async function createMediaAttachment(
     createdAt: new Date().toISOString(),
   };
   await db.insert(mediaAttachments).values(attachment);
+  notifyDbChanged();
   return attachment;
 }
 
 export async function deleteMediaAttachment(id: string): Promise<void> {
   await db.delete(mediaAttachments).where(eq(mediaAttachments.id, id));
+  notifyDbChanged();
 }
 
 export async function getMediaForPerson(personId: string): Promise<MediaAttachment[]> {

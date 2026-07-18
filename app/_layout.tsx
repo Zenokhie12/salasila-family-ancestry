@@ -1,25 +1,34 @@
-import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import migrations from '../drizzle/migrations';
-import { db } from '../src/db/client';
+import { initDb } from '../src/db/client';
 import { UI } from '../src/lib/colors';
 
 export default function RootLayout() {
-  const { success, error } = useMigrations(db, migrations);
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState<Error>();
+
+  // The DB must open asynchronously (the sync API is unsupported on web) and
+  // migrations must finish before any screen queries it.
+  useEffect(() => {
+    initDb().then(
+      () => setReady(true),
+      (e) => setError(e instanceof Error ? e : new Error(String(e))),
+    );
+  }, []);
 
   if (error) {
     return (
       <View style={styles.center}>
-        <Text style={styles.errorTitle}>Database migration failed</Text>
+        <Text style={styles.errorTitle}>Database failed to open</Text>
         <Text style={styles.errorDetail}>{error.message}</Text>
       </View>
     );
   }
-  if (!success) {
+  if (!ready) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={UI.accent} />

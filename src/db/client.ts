@@ -1,12 +1,26 @@
-import { drizzle } from 'drizzle-orm/expo-sqlite';
-import { openDatabaseSync } from 'expo-sqlite';
+import { drizzle, type ExpoSQLiteDatabase } from 'drizzle-orm/expo-sqlite';
+import { migrate } from 'drizzle-orm/expo-sqlite/migrator';
+import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
 
+import migrations from '../../drizzle/migrations';
 import * as schema from './schema';
 
-// enableChangeListener powers drizzle's useLiveQuery so the tree canvas and
-// profile screens re-render automatically after any CRUD operation.
-export const expoDb = openDatabaseSync('salasila.db', { enableChangeListener: true });
-// SQLite has FK enforcement off by default; needed for media cascade deletes.
-expoDb.execSync('PRAGMA foreign_keys = ON;');
+// Opened asynchronously: the sync API is not supported by expo-sqlite's web
+// (wasm) backend, and web is a first-class target here. Every consumer runs
+// behind the initDb() gate in app/_layout.tsx, so these are always assigned
+// by the time they are used.
+export let expoDb: SQLiteDatabase;
+export let db: ExpoSQLiteDatabase<typeof schema>;
 
-export const db = drizzle(expoDb, { schema });
+let initPromise: Promise<void> | undefined;
+
+export function initDb(): Promise<void> {
+  initPromise ??= (async () => {
+    expoDb = await openDatabaseAsync('salasila.db');
+    // FK enforcement is off by default; needed for media cascade deletes.
+    await expoDb.execAsync('PRAGMA foreign_keys = ON;');
+    db = drizzle(expoDb, { schema });
+    await migrate(db, migrations);
+  })();
+  return initPromise;
+}

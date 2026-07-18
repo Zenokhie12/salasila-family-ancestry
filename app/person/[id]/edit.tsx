@@ -9,7 +9,7 @@ import { UI } from '../../../src/lib/colors';
 export default function EditPersonScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const person = usePerson(id);
+  const { person } = usePerson(id);
 
   if (!person) return null;
 
