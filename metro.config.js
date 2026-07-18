@@ -6,13 +6,9 @@ const config = getDefaultConfig(__dirname);
 // babel-plugin-inline-import in babel.config.js).
 config.resolver.sourceExts.push('sql');
 
-// expo-sqlite on web (alpha): ship the wa-sqlite wasm binary and send the
-// COOP/COEP headers SharedArrayBuffer requires on the dev server.
+// expo-sqlite on web (alpha): ship the wa-sqlite wasm binary. The COOP/COEP
+// headers SharedArrayBuffer needs are injected by public/coi-serviceworker.js
+// (the dev server ignores header middleware for page loads).
 config.resolver.assetExts.push('wasm');
-config.server.enhanceMiddleware = (middleware) => (req, res, next) => {
-  res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-  return middleware(req, res, next);
-};
 
 module.exports = config;
