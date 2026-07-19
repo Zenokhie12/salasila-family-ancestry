@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { PersonPicker } from '../src/components/PersonPicker';
 import { PersonForm, type PersonFormValues } from '../src/components/profile/PersonForm';
 import { createPerson } from '../src/db/queries/people';
 import { usePeople } from '../src/hooks/useLiveData';
@@ -89,24 +90,7 @@ export default function AddPersonScreen() {
               {RELATIONS.find((r) => r.value === relation)?.label} {anchor.fullName}
             </Text>
           ) : (
-            <View style={styles.anchorList}>
-              {people.map((person) => (
-                <Pressable
-                  key={person.id}
-                  style={[styles.anchorRow, anchorId === person.id && styles.anchorRowActive]}
-                  onPress={() => setAnchorId(person.id)}
-                >
-                  <Text
-                    style={[
-                      styles.anchorLabel,
-                      anchorId === person.id && styles.anchorLabelActive,
-                    ]}
-                  >
-                    {person.fullName}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
+            <PersonPicker people={people} selectedId={anchorId} onSelect={setAnchorId} />
           )}
         </View>
       )}
@@ -153,21 +137,4 @@ const styles = StyleSheet.create({
   segmentLabel: { fontSize: 13, color: UI.text },
   segmentLabelActive: { color: UI.onDark, fontWeight: 'bold' },
   anchorFixed: { fontSize: 15, color: UI.text, fontWeight: '600' },
-  anchorList: {
-    borderWidth: 1,
-    borderColor: UI.border,
-    borderRadius: 10,
-    backgroundColor: UI.card,
-    maxHeight: 200,
-    overflow: 'hidden',
-  },
-  anchorRow: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: UI.border,
-  },
-  anchorRowActive: { backgroundColor: UI.accent },
-  anchorLabel: { fontSize: 14, color: UI.text },
-  anchorLabelActive: { color: UI.onDark, fontWeight: 'bold' },
 });
